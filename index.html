@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Tutor · learn by doing</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  body { background: #f6f8fa; color: #1f2328; line-height: 1.5; }
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; width: 100%; }
+
+  .navbar { background: #fff; border-bottom: 1px solid #d0d7de; padding: 14px 0; position: sticky; top: 0; z-index: 10; }
+  .navbar .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.4rem; color: #1f2328; text-decoration: none; }
+  .logo-mark { width: 32px; height: 32px; background: #0969da; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+  .nav-links { display: flex; gap: 22px; }
+  .nav-links a { color: #656d76; text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+  .nav-links a:hover { color: #0969da; }
+  .btn { display: inline-block; background: #0969da; color: white; font-weight: 600; font-size: 0.9rem; padding: 10px 20px; border-radius: 8px; text-decoration: none; }
+  .btn-outline { background: #fff; color: #1f2328; border: 1px solid #d0d7de; }
+
+  .hero { padding: 60px 0 40px; background: linear-gradient(135deg, #f0f6ff 0%, #fff 70%); border-bottom: 1px solid #d0d7de; text-align: center; }
+  .hero-badge { display: inline-block; background: #0969da; color: white; font-size: 0.72rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; letter-spacing: 0.4px; margin-bottom: 16px; text-transform: uppercase; }
+  .hero h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 span { color: #0969da; }
+  .hero p { font-size: 1.1rem; color: #656d76; max-width: 600px; margin: 0 auto 26px; }
+  .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .section { padding: 56px 0; }
+  .section h2 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .section .sub { color: #656d76; font-size: 1.05rem; margin-bottom: 28px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .card { background: #fff; border: 1px solid #d0d7de; border-radius: 12px; padding: 24px 22px; }
+  .card-icon { font-size: 1.7rem; margin-bottom: 14px; background: #eef4ff; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+  .card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+  .card p { color: #656d76; font-size: 0.92rem; }
+
+  .playground { background: #0d1117; border-radius: 16px; padding: 26px; color: #e6edf3; margin: 40px 0 20px; }
+  .playground h3 { font-size: 1.5rem; color: white; margin-bottom: 4px; }
+  .playground .sub { color: #8b949e; font-size: 0.9rem; margin-bottom: 20px; }
+  .command-input-wrapper { display: flex; align-items: center; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 4px 4px 4px 14px; margin-bottom: 14px; }
+  .command-input-wrapper:focus-within { border-color: #58a6ff; box-shadow: 0 0 0 3px rgba(88,166,255,0.3); }
+  .command-prompt { font-family: 'Courier New', monospace; font-size: 0.95rem; color: #58a6ff; font-weight: 700; margin-right: 10px; }
+  #commandInput { flex: 1; background: transparent; border: none; padding: 12px 0; font-family: 'Courier New', monospace; font-size: 0.9rem; color: #e6edf3; outline: none; min-width: 0; }
+  #commandInput::placeholder { color: #6e7681; }
+  .run-btn { background: #238636; color: white; border: none; border-radius: 8px; padding: 11px 22px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+  .run-btn:hover { background: #2ea043; }
+  .quick-commands { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .quick-commands .badge { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 14px; border-radius: 100px; font-size: 0.75rem; font-family: 'Courier New', monospace; cursor: pointer; user-select: none; }
+  .quick-commands .badge:hover { background: #30363d; color: white; }
+  .terminal-output { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 16px; font-family: 'Courier New', monospace; font-size: 0.85rem; min-height: 150px; max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #c9d1d9; line-height: 1.65; border-left: 4px solid #58a6ff; }
+  .terminal-output .success { color: #7ee787; }
+  .terminal-output .error { color: #f85149; }
+  .terminal-output .info { color: #79c0ff; }
+  .terminal-output .comment { color: #8b949e; }
+  .terminal-output .cmd { color: #ffa657; font-weight: 700; }
+
+  .steps { display: flex; flex-direction: column; gap: 22px; margin-top: 24px; }
+  .step-item { display: flex; gap: 18px; align-items: flex-start; }
+  .step-number { background: #0969da; color: white; font-weight: 700; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-item h4 { font-size: 1.1rem; margin-bottom: 4px; }
+  .step-item p { color: #656d76; font-size: 0.95rem; }
+
+  .footer { background: #fff; border-top: 1px solid #d0d7de; padding: 22px 0; margin-top: auto; text-align: center; color: #656d76; font-size: 0.85rem; }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 2rem; }
+    .command-input-wrapper { flex-wrap: wrap; padding: 8px; }
+    #commandInput { padding: 10px 6px; width: 100%; }
+    .run-btn { width: 100%; margin-top: 4px; }
+    .step-item { flex-direction: column; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="navbar">
+    <div class="container">
+      <a href="#" class="logo"><div class="logo-mark">G</div><span>GitHub Tutor</span></a>
+      <nav class="nav-links">
+        <a href="#learn">Learn</a>
+        <a href="#playground">Playground</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+      <a href="#playground" class="btn">Start practicing</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <span class="hero-badge">Interactive learning</span>
+        <h1>Master <span>GitHub</span><br>one command at a time</h1>
+        <p>Learn Git &amp; GitHub concepts through our interactive playground. Type commands, see results, and build confidence — no setup needed.</p>
+        <div class="hero-actions">
+          <a href="#playground" class="btn">Try the playground</a>
+          <a href="#learn" class="btn btn-outline">Explore topics</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="playground" class="container">
+      <div class="playground">
+        <h3>💻 Interactive Git playground</h3>
+        <p class="sub">Type a Git command below — we'll simulate the output</p>
+        <div class="command-input-wrapper">
+          <span class="command-prompt">$</span>
+          <input type="text" id="commandInput" placeholder="e.g. git init, git status, git add ." autocomplete="off" spellcheck="false">
+          <button class="run-btn" id="runCommand">Run ▶</button>
+        </div>
+        <div class="quick-commands" id="quickCommands">
+          <span class="badge" data-cmd="git init">git init</span>
+          <span class="badge" data-cmd="git status">git status</span>
+          <span class="badge" data-cmd="git add .">git add .</span>
+          <span class="badge" data-cmd="git commit -m 'initial commit'">git commit</span>
+          <span class="badge" data-cmd="git log --oneline">git log</span>
+          <span class="badge" data-cmd="git branch">git branch</span>
+          <span class="badge" data-cmd="git checkout -b feature">git checkout -b</span>
+          <span class="badge" data-cmd="git remote add origin https://github.com/user/demo.git">git remote add</span>
+          <span class="badge" data-cmd="git push origin main">git push</span>
+          <span class="badge" data-cmd="clear">clear</span>
+        </div>
+        <div class="terminal-output" id="terminalOutput"><span class="comment"># Welcome to GitHub Tutor playground!
+# Try "git init", "git status", or click a badge above.
+</span><span class="info">→ Ready when you are.</span></div>
+      </div>
+    </section>
+
+    <section id="learn" class="section">
+      <div class="container">
+        <h2>What you'll learn</h2>
+        <p class="sub">From your first commit to collaborating on open source.</p>
+        <div class="cards-grid">
+          <div class="card"><div class="card-icon">🌿</div><h3>Git basics</h3><p>Repositories, commits, branches, and the staging area.</p></div>
+          <div class="card"><div class="card-icon">☁️</div><h3>Remote &amp; GitHub</h3><p>Push, pull, and collaborate with remotes.</p></div>
+          <div class="card"><div class="card-icon">🔀</div><h3>Branching &amp; merging</h3><p>Work on features in isolation and merge safely.</p></div>
+          <div class="card"><div class="card-icon">👥</div><h3>Collaboration</h3><p>Pull requests, reviews, forks, and issues.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap" class="section">
+      <div class="container">
+        <h2>Your learning path</h2>
+        <p class="sub">A structured approach from beginner to confident GitHub user.</p>
+        <div class="steps">
+          <div class="step-item"><div class="step-number">1</div><div><h4>Set up Git &amp; GitHub</h4><p>Install Git, create a GitHub account, configure your identity.</p></div></div>
+          <div class="step-item"><div class="step-number">2</div><div><h4>Your first repository</h4><p>Create a repo, make commits, understand the three states of Git.</p></div></div>
+          <div class="step-item"><div class="step-number">3</div><div><h4>Branching &amp; merging</h4><p>Work on features safely, merge changes, handle conflicts.</p></div></div>
+          <div class="step-item"><div class="step-number">4</div><div><h4>Collaborate on GitHub</h4><p>Push to remote, create pull requests, contribute to open source.</p></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">GitHub Tutor — learn by doing. Not affiliated with GitHub, Inc.</div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function ready(fn) {
+    if (document.readyState !== 'loading') fn();
+    else document.addEventListener('DOMContentLoaded', fn);
+  }
+  ready(function () {
+    var input = document.getElementById('commandInput');
+    var runBtn = document.getElementById('runCommand');
+    var out = document.getElementById('terminalOutput');
+    var chips = document.getElementById('quickCommands');
+    if (!input || !runBtn || !out) return;
+
+    var state = { initialized: false, staged: [], commits: [], branch: 'main', branches: ['main'], remote: null, fileSystem: [] };
+
+    function hash() { return Math.random().toString(16).substring(2, 9); }
+    function addLine(t, c) {
+      var s = document.createElement('span');
+      if (c) s.className = c;
+      s.textContent = t + '\n';
+      out.appendChild(s);
+      out.scrollTop = out.scrollHeight;
+    }
+
+    function cmdInit() {
+      if (state.initialized) { addLine('Reinitialized existing Git repository in /home/user/demo/.git/', 'info'); return; }
+      state.initialized = true; state.staged = []; state.commits = [];
+      state.branch = 'main'; state.branches = ['main']; state.remote = null; state.fileSystem = [];
+      addLine('Initialized empty Git repository in /home/user/demo/.git/', 'success');
+    }
+
+    function cmdStatus() {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      addLine('On branch ' + state.branch, 'info');
+      if (state.commits.length === 0) addLine('No commits yet', 'comment');
+      if (state.staged.length === 0) addLine('nothing to commit, working tree clean', 'success');
+      else {
+        addLine('Changes to be committed:', 'info');
+        for (var i = 0; i < state.staged.length; i++) addLine('        new file:   ' + state.staged[i], 'success');
+      }
+      var untracked = state.fileSystem.filter(function (f) { return state.staged.indexOf(f) === -1; });
+      if (untracked.length) {
+        addLine('Untracked files:', 'error');
+        for (var j = 0; j < untracked.length; j++) addLine('        ' + untracked[j], 'error');
+      }
+    }
+
+    function cmdAdd(args) {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      var fa = (args || '').trim() || '.', files = [];
+      if (fa === '.' || fa === '-A' || fa === '--all') {
+        if (state.fileSystem.length === 0) state.fileSystem = ['index.html', 'style.css', 'app.js'];
+        files = state.fileSystem.slice();
+      } else {
+        files = fa.split(/\s+/).filter(function (x) { return x; });
+        files.forEach(function (f) { if (state.fileSystem.indexOf(f) === -1) state.fileSystem.push(f); });
+      }
+      files.forEach(function (f) { if (state.staged.indexOf(f) === -1) state.staged.push(f); });
+      addLine('Added ' + files.join(', ') + ' to staging area.', 'success');
+    }
+
+    function cmdCommit(args) {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      var m = args.match(/-m\s+['"]([^'"]+)['"]/);
+      var msg = m ? m[1] : 'commit';
+      if (state.staged.length === 0) { addLine('nothing to commit, working tree clean', 'error'); return; }
+      var h = hash(), c = state.staged.length;
+      state.commits.push({ id: h, message: msg });
+      state.staged = [];
+      addLine('[' + state.branch + ' ' + h + '] ' + msg, 'success');
+      addLine(' ' + c + ' file(s) changed', 'comment');
+    }
+
+    function cmdLog(args) {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      if (state.commits.length === 0) { addLine("fatal: your current branch 'main' does not have any commits yet", 'error'); return; }
+      for (var i = state.commits.length - 1; i >= 0; i--) {
+        if (args.indexOf('--oneline') !== -1) addLine(state.commits[i].id + ' ' + state.commits[i].message, 'info');
+        else {
+          addLine('commit ' + state.commits[i].id, 'info');
+          addLine('Author: You <you@example.com>', 'comment');
+          addLine('    ' + state.commits[i].message, 'success');
+          addLine('');
+        }
+      }
+    }
+
+    function cmdBranch() {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      state.branches.forEach(function (b) {
+        addLine((b === state.branch ? '* ' : '  ') + b, b === state.branch ? 'success' : 'info');
+      });
+    }
+
+    function cmdCheckout(args) {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      var p = args.split(/\s+/).filter(function (x) { return x; });
+      if (p[0] === '-b' && p[1]) {
+        if (state.branches.indexOf(p[1]) !== -1) { addLine("fatal: a branch named '" + p[1] + "' already exists", 'error'); return; }
+        state.branches.push(p[1]); state.branch = p[1];
+        addLine("Switched to a new branch '" + p[1] + "'", 'success');
+      } else if (p[0]) {
+        if (state.branches.indexOf(p[0]) !== -1) { state.branch = p[0]; addLine("Switched to branch '" + p[0] + "'", 'success'); }
+        else addLine("error: pathspec '" + p[0] + "' did not match any file(s) known to git", 'error');
+      } else addLine('hint: you must specify a branch name', 'error');
+    }
+
+    function cmdRemote(args) {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      if (args.indexOf('-v') !== -1) {
+        if (state.remote) { addLine('origin  https://github.com/user/demo.git (fetch)', 'info'); addLine('origin  https://github.com/user/demo.git (push)', 'info'); }
+        else addLine('(no remotes configured)', 'comment');
+      } else if (args.indexOf('add') !== -1 && args.indexOf('origin') !== -1) {
+        state.remote = 'origin'; addLine('Remote origin added.', 'success');
+      } else addLine('usage: git remote [-v | add <name> <url>]', 'error');
+    }
+
+    function cmdPush(args) {
+      if (!state.initialized) { addLine('fatal: not a git repository (or any of the parent directories): .git', 'error'); return; }
+      if (!state.remote) { addLine('fatal: No configured push destination.', 'error'); return; }
+      var p = args.split(/\s+/).filter(function (x) { return x; });
+      if (p.length >= 2) {
+        if (p[0] !== 'origin') { addLine("fatal: '" + p[0] + "' does not appear to be a git repository", 'error'); return; }
+        if (state.branches.indexOf(p[1]) === -1) { addLine('error: src refspec ' + p[1] + ' does not match any', 'error'); return; }
+        if (state.commits.length === 0) { addLine('error: failed to push some refs (no commits)', 'error'); return; }
+        var t = state.commits.length * 3;
+        addLine('Enumerating objects: ' + t + ', done.', 'comment');
+        addLine('Counting objects: 100% (' + t + '/' + t + '), done.', 'comment');
+        addLine('Writing objects: 100% (' + t + '/' + t + '), done.', 'comment');
+        addLine('To https://github.com/user/demo.git', 'info');
+        addLine('   ' + state.commits[state.commits.length - 1].id + '..' + hash() + '  ' + p[1] + ' -> ' + p[1], 'success');
+      } else {
+        addLine('fatal: The current branch ' + state.branch + ' has no upstream branch.', 'error');
+        addLine('    git push --set-upstream origin ' + state.branch, 'info');
+      }
+    }
+
+    function execute(raw) {
+      var t = (raw || '').trim();
+      if (!t) return;
+      if (t === 'clear' || t === 'cls') { out.innerHTML = ''; return; }
+      addLine('$ ' + t, 'cmd');
+      var rest = t.indexOf('git ') === 0 ? t.substring(4).trim() : t;
+      var sp = rest.indexOf(' '), cmd, args;
+      if (sp === -1) { cmd = rest; args = ''; } else { cmd = rest.substring(0, sp); args = rest.substring(sp + 1).trim(); }
+      switch (cmd) {
+        case 'init': cmdInit(); break;
+        case 'status': cmdStatus(); break;
+        case 'add': cmdAdd(args); break;
+        case 'commit': cmdCommit(args); break;
+        case 'log': cmdLog(args); break;
+        case 'branch': cmdBranch(); break;
+        case 'checkout': case 'switch': cmdCheckout(args); break;
+        case 'remote': cmdRemote(args); break;
+        case 'push': cmdPush(args); break;
+        case 'pull': addLine('Already up to date.', 'success'); break;
+        default: addLine("git: '" + cmd + "' is not a git command. Try 'help'.", 'error');
+      }
+      addLine('');
+    }
+
+    runBtn.addEventListener('click', function () { execute(input.value); input.value = ''; input.focus(); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); execute(input.value); input.value = ''; }
+    });
+    chips.addEventListener('click', function (e) {
+      var t = e.target;
+      while (t && t !== chips) {
+        if (t.classList && t.classList.contains('badge')) {
+          execute(t.getAttribute('data-cmd')); input.focus(); return;
+        }
+        t = t.parentNode;
+      }
+    });
+    input.focus();
+  });
+})();
+</script>
+</body>
+</html>
